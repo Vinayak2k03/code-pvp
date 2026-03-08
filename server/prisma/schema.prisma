@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  email         String   @unique
+  passwordHash  String
+  rating        Int      @default(1200)
+  wins          Int      @default(0)
+  losses        Int      @default(0)
+  draws         Int      @default(0)
+  avatarUrl     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  matchesAsPlayer1 Match[]      @relation("Player1")
+  matchesAsPlayer2 Match[]      @relation("Player2")
+  matchesWon       Match[]      @relation("Winner")
+  submissions      Submission[]
+
+  @@index([rating(sort: Desc)])
+  @@map("users")
+}
+
+// ─── Problems ─────────────────────────────────────────────────────
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Problem {
+  id              String     @id @default(cuid())
+  title           String
+  slug            String     @unique
+  description     String     @db.Text
+  difficulty      Difficulty
+  tags            String[]
+  constraints     String     @db.Text
+  sampleInput     String     @db.Text
+  sampleOutput    String     @db.Text
+  timeLimit       Int        @default(2000) // ms
+  memoryLimit     Int        @default(256)  // MB
+  starterCode     Json       // { python: "...", javascript: "...", cpp: "..." }
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  testCases   TestCase[]
+  matches     Match[]
+
+  @@index([difficulty])
+  @@map("problems")
+}
+
+model TestCase {
+  id        String  @id @default(cuid())
+  problemId String
+  input     String  @db.Text
+  output    String  @db.Text
+  isHidden  Boolean @default(true)
+  order     Int     @default(0)
+
+  // Relations
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@map("test_cases")
+}
+
+// ─── Matches ──────────────────────────────────────────────────────
+
+enum MatchStatus {
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MatchResult {
+  PLAYER1_WIN
+  PLAYER2_WIN
+  DRAW
+  CANCELLED
+}
+
+model Match {
+  id              String      @id @default(cuid())
+  player1Id       String
+  player2Id       String
+  problemId       String
+  status          MatchStatus @default(WAITING)
+  result          MatchResult?
+  winnerId        String?
+  player1Rating   Int         // Rating at time of match
+  player2Rating   Int
+  player1RatingDelta Int?
+  player2RatingDelta Int?
+  startedAt       DateTime?
+  endedAt         DateTime?
+  duration        Int?        // seconds
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  player1     User         @relation("Player1", fields: [player1Id], references: [id])
+  player2     User         @relation("Player2", fields: [player2Id], references: [id])
+  problem     Problem      @relation(fields: [problemId], references: [id])
+  winner      User?        @relation("Winner", fields: [winnerId], references: [id])
+  submissions Submission[]
+
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("matches")
+}
+
+// ─── Submissions ──────────────────────────────────────────────────
+
+enum Verdict {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+model Submission {
+  id              String   @id @default(cuid())
+  matchId         String
+  userId          String
+  code            String   @db.Text
+  language        String
+  verdict         Verdict  @default(PENDING)
+  executionTime   Int?     // ms
+  memoryUsed      Int?     // KB
+  passedTestCases Int      @default(0)
+  totalTestCases  Int      @default(0)
+  judge0Tokens    String[] // Judge0 submission tokens
+  createdAt       DateTime @default(now())
+
+  // Relations
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([matchId])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("submissions")
+}
