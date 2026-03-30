@@ -98,6 +98,9 @@ export class MatchmakingService {
       }
     }
 
+    console.log(`[Matchmaking] Processing queue. Current size: ${queueSize}, valid players: ${players.length}`);
+    console.log(`[Matchmaking] Players:`, players.map(p => p.username).join(', '));
+
     // Low-traffic deterministic path: if exactly two players are queued,
     // match them immediately.
     if (players.length === 2) {
