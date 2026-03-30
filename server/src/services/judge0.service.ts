@@ -306,21 +306,36 @@ export class Judge0Service {
       }
 
       const result: Judge0Result = (await response.json()) as Judge0Result;
+      
+      console.log(`[Judge0] runCode result:`, JSON.stringify(result, null, 2));
 
-      const stdout = result.stdout
-        ? Buffer.from(result.stdout, "base64").toString()
+      // Fallback polling if wait=true didn't wait entirely
+      let finalResult = result;
+      if (finalResult.status && (finalResult.status.id === 1 || finalResult.status.id === 2) && finalResult.token) {
+        console.log(`[Judge0] Execution still in queue/processing, polling... token=${finalResult.token}`);
+        const polled = await this.pollResults([finalResult.token]);
+        if (polled && polled.length > 0) {
+          finalResult = polled[0];
+          console.log(`[Judge0] runCode polled result:`, JSON.stringify(finalResult, null, 2));
+        }
+      }
+
+      const stdout = finalResult.stdout
+        ? Buffer.from(finalResult.stdout, "base64").toString()
         : "";
-      const stderr = result.stderr
-        ? Buffer.from(result.stderr, "base64").toString()
-        : result.compile_output
-          ? Buffer.from(result.compile_output, "base64").toString()
-          : "";
+      const stderr = finalResult.stderr
+        ? Buffer.from(finalResult.stderr, "base64").toString()
+        : finalResult.compile_output
+          ? Buffer.from(finalResult.compile_output, "base64").toString()
+          : finalResult.message 
+            ? Buffer.from(finalResult.message, "base64").toString() 
+            : "";
 
       return {
         stdout: stdout.trim(),
-        stderr: stderr.trim(),
-        time: result.time ? Math.round(parseFloat(result.time) * 1000) : null,
-        memory: result.memory,
+        stderr: stderr.trim() || (finalResult.status && finalResult.status.description ? finalResult.status.description : ""),
+        time: finalResult.time ? Math.round(parseFloat(finalResult.time) * 1000) : null,
+        memory: finalResult.memory,
       };
     } catch (error) {
       return {
