@@ -98,6 +98,13 @@ export class MatchmakingService {
       }
     }
 
+    // Low-traffic deterministic path: if exactly two players are queued,
+    // match them immediately.
+    if (players.length === 2) {
+      await this.createMatch(players[0], players[1]);
+      return;
+    }
+
     const matched = new Set<string>();
 
     for (let i = 0; i < players.length; i++) {
