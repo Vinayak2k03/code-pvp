@@ -151,90 +151,107 @@ export class MatchmakingService {
     player1: QueueEntry,
     player2: QueueEntry
   ): Promise<void> {
+    console.log(`[Matchmaking] createMatch started for ${player1.username} and ${player2.username}`);
+    
     // Remove both from queue
     await this.removeFromQueue(player1.userId, false);
     await this.removeFromQueue(player2.userId, false);
     await this.broadcastQueueStatus();
+    
+    console.log(`[Matchmaking] createMatch: Removed players from queue and broadcasted status.`);
 
     // Pick a random problem appropriate for their rating
     const difficulty = this.getDifficultyForRating(
       (player1.rating + player2.rating) / 2
     );
 
-    const problems = await prisma.problem.findMany({
-      where: { difficulty },
-    });
+    console.log(`[Matchmaking] createMatch: Querying problems with difficulty ${difficulty}...`);
+    
+    try {
+      const problems = await prisma.problem.findMany({
+        where: { difficulty },
+      });
 
-    if (problems.length === 0) {
-      // Fallback: get any problem
-      const allProblems = await prisma.problem.findMany();
-      if (allProblems.length === 0) {
-        console.error("No problems in database!");
-        return;
+      console.log(`[Matchmaking] createMatch: Found ${problems.length} problems with difficulty ${difficulty}`);
+
+      if (problems.length === 0) {
+        // Fallback: get any problem
+        console.log(`[Matchmaking] createMatch: Querying all problems as fallback...`);
+        const allProblems = await prisma.problem.findMany();
+        console.log(`[Matchmaking] createMatch: Found ${allProblems.length} total problems`);
+        if (allProblems.length === 0) {
+          console.error("No problems in database!");
+          return;
+        }
+        problems.push(...allProblems);
       }
-      problems.push(...allProblems);
-    }
 
-    const problem = problems[Math.floor(Math.random() * problems.length)];
+      const problem = problems[Math.floor(Math.random() * problems.length)];
+      console.log(`[Matchmaking] createMatch: Selected problem ${problem.id} (${problem.title})`);
 
-    // Create match in database
-    const match = await prisma.match.create({
-      data: {
-        player1Id: player1.userId,
-        player2Id: player2.userId,
-        problemId: problem.id,
-        player1Rating: player1.rating,
-        player2Rating: player2.rating,
-        status: "WAITING",
-      },
-      include: {
-        problem: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            description: true,
-            difficulty: true,
-            tags: true,
-            constraints: true,
-            sampleInput: true,
-            sampleOutput: true,
-            timeLimit: true,
-            memoryLimit: true,
-            starterCode: true,
+      // Create match in database
+      const match = await prisma.match.create({
+        data: {
+          player1Id: player1.userId,
+          player2Id: player2.userId,
+          problemId: problem.id,
+          player1Rating: player1.rating,
+          player2Rating: player2.rating,
+          status: "WAITING",
+        },
+        include: {
+          problem: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              description: true,
+              difficulty: true,
+              tags: true,
+              constraints: true,
+              sampleInput: true,
+              sampleOutput: true,
+              timeLimit: true,
+              memoryLimit: true,
+              starterCode: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const matchData = {
-      matchId: match.id,
-      problem: match.problem,
-      duration: MATCH_DURATION,
-    };
+      console.log(`[Matchmaking] createMatch: Match ${match.id} saved to database`);
 
-    // Emit to both players
-    this.io.to(`user:${player1.userId}`).emit("match:found", {
-      ...matchData,
-      opponent: {
-        id: player2.userId,
-        username: player2.username,
-        rating: player2.rating,
-      },
-    });
+      const matchData = {
+        matchId: match.id,
+        problem: match.problem,
+        duration: MATCH_DURATION,
+      };
 
-    this.io.to(`user:${player2.userId}`).emit("match:found", {
-      ...matchData,
-      opponent: {
-        id: player1.userId,
-        username: player1.username,
-        rating: player1.rating,
-      },
-    });
+      // Emit to both players
+      this.io.to(`user:${player1.userId}`).emit("match:found", {
+        ...matchData,
+        opponent: {
+          id: player2.userId,
+          username: player2.username,
+          rating: player2.rating,
+        },
+      });
 
-    console.log(
-      `🎯 Match created: ${player1.username} (${player1.rating}) vs ${player2.username} (${player2.rating})`
-    );
+      this.io.to(`user:${player2.userId}`).emit("match:found", {
+        ...matchData,
+        opponent: {
+          id: player1.userId,
+          username: player1.username,
+          rating: player1.rating,
+        },
+      });
+
+      console.log(
+        `🎯 Match created: ${player1.username} (${player1.rating}) vs ${player2.username} (${player2.rating})`
+      );
+    } catch (dbError) {
+      console.error("[Matchmaking] createMatch DB Error:", dbError);
+    }
   }
 
   /**
