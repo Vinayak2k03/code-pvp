@@ -1,6 +1,7 @@
 # Server Dockerfile
 FROM node:20-alpine AS base
 WORKDIR /app
+RUN apk add --no-cache openssl libc6-compat
 
 # Install dependencies
 FROM base AS deps
