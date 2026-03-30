@@ -52,6 +52,10 @@ services:
       ENABLE_WAIT_RESULT: "true"
       ENABLE_BATCHED_OPERATIONS: "true"
       JUDGE0_TELEMETRY_ENABLED: "false"
+      JUDGE0_ALLOW_CGROUPS: "true"
+      ALLOW_ENABLE_SYS_ADMIN: "true"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     depends_on:
       judge0-db:
         condition: service_healthy
