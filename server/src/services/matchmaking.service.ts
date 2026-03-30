@@ -64,23 +64,19 @@ export class MatchmakingService {
     // Store full data
     await redis.hset(QUEUE_DATA_KEY, entry.userId, JSON.stringify(entry));
 
-    // Get position in queue
-    const position = await redis.zrank(QUEUE_KEY, entry.userId);
-    const total = await redis.zcard(QUEUE_KEY);
-
-    this.io.to(`user:${entry.userId}`).emit("queue:status", {
-      position: (position ?? 0) + 1,
-      total,
-      estimatedWait: Math.max(5, total * 3),
-    });
+    await this.broadcastQueueStatus();
   }
 
   /**
    * Remove player from matchmaking queue
    */
-  async removeFromQueue(userId: string): Promise<void> {
+  async removeFromQueue(userId: string, emitUpdate = true): Promise<void> {
     await redis.zrem(QUEUE_KEY, userId);
     await redis.hdel(QUEUE_DATA_KEY, userId);
+
+    if (emitUpdate) {
+      await this.broadcastQueueStatus();
+    }
   }
 
   /**
@@ -144,8 +140,9 @@ export class MatchmakingService {
     player2: QueueEntry
   ): Promise<void> {
     // Remove both from queue
-    await this.removeFromQueue(player1.userId);
-    await this.removeFromQueue(player2.userId);
+    await this.removeFromQueue(player1.userId, false);
+    await this.removeFromQueue(player2.userId, false);
+    await this.broadcastQueueStatus();
 
     // Pick a random problem appropriate for their rating
     const difficulty = this.getDifficultyForRating(
@@ -237,5 +234,22 @@ export class MatchmakingService {
     if (avgRating < 1400) return "EASY";
     if (avgRating < 1800) return "MEDIUM";
     return "HARD";
+  }
+
+  /**
+   * Emit current queue position/size to every queued user
+   */
+  private async broadcastQueueStatus(): Promise<void> {
+    const userIds = await redis.zrange(QUEUE_KEY, 0, -1);
+    const total = userIds.length;
+    const estimatedWait = Math.max(5, total * 3);
+
+    for (let i = 0; i < userIds.length; i++) {
+      this.io.to(`user:${userIds[i]}`).emit("queue:status", {
+        position: i + 1,
+        total,
+        estimatedWait,
+      });
+    }
   }
 }
