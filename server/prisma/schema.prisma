@@ -33,7 +33,6 @@ model User {
 }
 
 // ─── Problems ─────────────────────────────────────────────────────
-
 enum Difficulty {
   EASY
   MEDIUM
