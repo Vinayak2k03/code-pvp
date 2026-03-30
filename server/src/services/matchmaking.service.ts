@@ -68,7 +68,7 @@ export class MatchmakingService {
     const position = await redis.zrank(QUEUE_KEY, entry.userId);
     const total = await redis.zcard(QUEUE_KEY);
 
-    this.io.to(entry.socketId).emit("queue:status", {
+    this.io.to(`user:${entry.userId}`).emit("queue:status", {
       position: (position ?? 0) + 1,
       total,
       estimatedWait: Math.max(5, total * 3),
@@ -92,11 +92,10 @@ export class MatchmakingService {
     if (queueSize < 2) return;
 
     // Get all players sorted by rating
-    const playerIds = await redis.zrange(QUEUE_KEY, 0, -1, "WITHSCORES");
+    const playerIds = await redis.zrange(QUEUE_KEY, 0, -1);
     const players: QueueEntry[] = [];
 
-    for (let i = 0; i < playerIds.length; i += 2) {
-      const userId = playerIds[i];
+    for (const userId of playerIds) {
       const dataStr = await redis.hget(QUEUE_DATA_KEY, userId);
       if (dataStr) {
         players.push(JSON.parse(dataStr));
@@ -206,7 +205,7 @@ export class MatchmakingService {
     };
 
     // Emit to both players
-    this.io.to(player1.socketId).emit("match:found", {
+    this.io.to(`user:${player1.userId}`).emit("match:found", {
       ...matchData,
       opponent: {
         id: player2.userId,
@@ -215,7 +214,7 @@ export class MatchmakingService {
       },
     });
 
-    this.io.to(player2.socketId).emit("match:found", {
+    this.io.to(`user:${player2.userId}`).emit("match:found", {
       ...matchData,
       opponent: {
         id: player1.userId,
