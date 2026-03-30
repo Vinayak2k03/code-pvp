@@ -118,9 +118,11 @@ export class MatchmakingService {
         if (matched.has(players[j].userId)) continue;
 
         const opponent = players[j];
+        const opponentWaitTime = (Date.now() - opponent.joinedAt) / 1000;
         const ratingDiff = Math.abs(player.rating - opponent.rating);
+        const forceMatch = waitTime >= 15 && opponentWaitTime >= 15;
 
-        if (ratingDiff <= expandedRange) {
+        if (ratingDiff <= expandedRange || forceMatch) {
           // Match found!
           matched.add(player.userId);
           matched.add(opponent.userId);
