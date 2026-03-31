@@ -333,7 +333,7 @@ export class Judge0Service {
 
       return {
         stdout: stdout.trim(),
-        stderr: stderr.trim() || (finalResult.status && finalResult.status.description ? finalResult.status.description : ""),
+        stderr: stderr.trim() || (finalResult.status && finalResult.status.id > 3 && finalResult.status.description ? finalResult.status.description : ""),
         time: finalResult.time ? Math.round(parseFloat(finalResult.time) * 1000) : null,
         memory: finalResult.memory,
       };
