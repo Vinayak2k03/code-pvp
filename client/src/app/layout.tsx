@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   title: "LeetCode Battleground",
   description:
     "Real-time competitive coding platform. Two players, one problem, fastest correct solution wins.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
