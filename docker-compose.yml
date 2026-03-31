@@ -34,12 +34,13 @@ services:
   # ─── Judge0 CE (local code execution) ───────────────────────
 
   judge0-server:
-    image: mrkushalsm/judge0:latest
+    image: judge0/judge0:1.13.1
     platform: linux/amd64
     restart: unless-stopped
     ports:
       - "2358:2358"
     privileged: true
+    cgroup: host
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -66,11 +67,12 @@ services:
         condition: service_healthy
 
   judge0-workers:
-    image: mrkushalsm/judge0:latest
+    image: judge0/judge0:1.13.1
     platform: linux/amd64
     restart: unless-stopped
     command: ["./scripts/workers"]
     privileged: true
+    cgroup: host
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
