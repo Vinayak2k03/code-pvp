@@ -1,12 +1,12 @@
 // Judge0 Language IDs
 export const LANGUAGE_MAP: Record<string, number> = {
-  javascript: 63,  // Node.js
-  python: 71,      // Python 3
+  javascript: 93,  // Node.js 18.15.0
+  python: 92,      // Python 3.11.2
   cpp: 54,         // C++ (GCC 9.2.0)
-  java: 62,        // Java (OpenJDK 13.0.1)
-  typescript: 74,  // TypeScript
-  go: 60,          // Go
-  rust: 73,        // Rust
+  java: 91,        // Java (JDK 17.0.6)
+  typescript: 94,  // TypeScript 5.0.3
+  go: 95,          // Go 1.18.5
+  rust: 73,        // Rust 1.40.0
 };
 
 export const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_MAP);

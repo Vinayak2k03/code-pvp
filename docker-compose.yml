@@ -40,6 +40,9 @@ services:
     ports:
       - "2358:2358"
     privileged: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
     environment:
       POSTGRES_HOST: judge0-db
       POSTGRES_DB: judge0
@@ -68,6 +71,9 @@ services:
     restart: unless-stopped
     command: ["./scripts/workers"]
     privileged: true
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
     environment:
       POSTGRES_HOST: judge0-db
       POSTGRES_DB: judge0
