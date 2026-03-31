@@ -4,18 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Swords } from "lucide-react";
+import { Terminal, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,62 +30,113 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-              <Swords className="h-5 w-5" />
-            </div>
-          </div>
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Enter your credentials to sign in
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+    <div className="bg-[#FAF9F9] dark:bg-[#0A0A0A] text-[#0A0A0A] dark:text-white min-h-screen flex flex-col font-body">
+      <div className="fixed top-0 left-0 w-full h-1.5 bg-[#F4F3F3] dark:bg-[#1C1B1B] z-50">
+        <div className="h-full bg-gradient-to-r from-primary to-secondary w-1/3"></div>
+      </div>
+      <main className="flex-grow flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-[420px] space-y-12">
+          <header className="text-center space-y-4">
+            <div className="inline-block">
+              <h1 className="text-4xl font-black tracking-tighter uppercase leading-none font-headline">CODECLASH</h1>
+              <div className="flex items-center justify-between mt-1">
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#5F5E5E] dark:text-[#A1A1A1]">Technical_Monolith</span>
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#5F5E5E] dark:text-[#A1A1A1]">V1.0.4</span>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-3">
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-foreground underline-offset-4 hover:underline">
-                Sign up
-              </Link>
+          </header>
+          
+          <div className="bg-white dark:bg-[#141414] p-10 shadow-[32px_32px_64px_-12px_rgba(95,94,94,0.06)] border border-[#E3E2E2] dark:border-[#1C1B1B] rounded-none">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold tracking-tight text-[#0A0A0A] dark:text-white">System Authentication</h2>
+                <p className="text-sm text-[#5F5E5E] dark:text-[#A1A1A1]">Initialize connection to the Arena cluster.</p>
+              </div>
+
+              {error && (
+                <div className="bg-[#FF3333]/10 border border-[#FF3333]/20 p-3 text-xs text-[#FF3333] font-mono rounded-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <button type="button" className="w-full h-12 bg-[#0A0A0A] text-white dark:bg-white dark:text-[#0A0A0A] flex items-center justify-center gap-3 hover:opacity-80 active:scale-[0.98] transition-all duration-200">
+                  <Terminal className="w-5 h-5" />
+                  <span className="text-xs font-bold uppercase tracking-widest font-headline">Connect with GitHub</span>
+                </button>
+                
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-black/10 dark:border-white/10"></div>
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
+                    <span className="bg-white dark:bg-[#141414] px-4 text-[#5F5E5E] dark:text-[#A1A1A1]">Protocol Fallback</span>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-[#5F5E5E] dark:text-[#A1A1A1] block ml-1">Operator_ID</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full h-11 bg-[#FAF9F9] dark:bg-[#0A0A0A] border-none focus:ring-1 focus:ring-[#0A0A0A] dark:focus:ring-white placeholder:text-black/50 dark:text-white/50 text-sm px-4 rounded-none font-mono" 
+                      placeholder="username@pvp.io" 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-[#5F5E5E] dark:text-[#A1A1A1] block ml-1">Security_Token</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full h-11 bg-[#FAF9F9] dark:bg-[#0A0A0A] border-none focus:ring-1 focus:ring-[#0A0A0A] dark:focus:ring-white placeholder:text-black/50 dark:text-white/50 text-sm px-4 rounded-none font-mono tracking-widest" 
+                      placeholder="••••••••" 
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full h-11 bg-[#F4F3F3] text-[#0A0A0A] dark:bg-[#1C1B1B] dark:text-white flex items-center justify-center gap-2 hover:bg-[#F4F3F3] dark:bg-[#1C1B1B]est active:scale-[0.98] transition-all duration-200 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  <span className="text-xs font-bold uppercase tracking-widest font-headline">Verify Identity</span>
+                </button>
+              </div>
+
+              <div className="pt-4 border-t border-[#E3E2E2] dark:border-[#1C1B1B] flex justify-between items-center">
+                <Link href="#" className="text-[10px] font-bold uppercase tracking-widest text-[#5F5E5E] dark:text-[#A1A1A1] hover:text-[#0A0A0A] dark:text-white transition-colors">
+                  Recover Account
+                </Link>
+                <div className="h-1 w-1 bg-gray-400-variant rounded-sm"></div>
+                <Link href="/signup" className="text-[10px] font-bold uppercase tracking-widest text-[#5F5E5E] dark:text-[#A1A1A1] hover:text-[#0A0A0A] dark:text-white transition-colors">
+                  Sign up
+                </Link>
+              </div>
+            </form>
+          </div>
+
+          <footer className="text-center">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 dark:text-white/40">
+              © 2026 CODECLASH // Technical_Monolith_V1
             </p>
-          </CardFooter>
-        </form>
-      </Card>
+          </footer>
+        </div>
+      </main>
+
+      <div className="fixed bottom-12 right-12 hidden lg:block opacity-10 select-none pointer-events-none">
+        <span className="text-[12rem] font-black tracking-tighter text-[#0A0A0A] dark:text-white leading-none font-headline">PVP</span>
+      </div>
+      <div className="fixed top-12 left-12 space-y-1 hidden xl:block">
+        <div className="w-8 h-0.5 bg-[#0A0A0A] dark:bg-white"></div>
+        <div className="w-4 h-0.5 bg-[#0A0A0A] dark:bg-white"></div>
+        <div className="w-12 h-0.5 bg-[#0A0A0A] dark:bg-white"></div>
+      </div>
     </div>
   );
 }

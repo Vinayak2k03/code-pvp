@@ -4,48 +4,80 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 37%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 0 0% 4%;
+    --radius: 0rem;
+    --surface-container-low: #F4F3F3;
+    --surface-container-lowest: #FFFFFF;
+    --surface-container: #F4F3F3;
+    --surface-container-high: #E3E2E2;
+    --surface-container-highest: #E3E2E2;
+    --surface: #FAF9F9;
+    --surface-bright: #FFFFFF;
+    --on-surface: #0A0A0A;
+    --on-surface-variant: #5F5E5E;
+    --primary-code: #000000;
+    --outline: #E3E2E2;
+    --outline-variant: #E3E2E2;
+    --secondary-container: #F4F3F3;
+    --on-secondary-container: #0A0A0A;
+    --error: #ba1a1a;
+    --on-error: #ffffff;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 0 0% 11%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 0 0% 11%;
+    --input: 0 0% 11%;
+    --ring: 0 0% 100%;
+    --surface-container-low: #141414;
+    --surface-container-lowest: #000000;
+    --surface-container: #1C1B1B;
+    --surface-container-high: #1C1B1B;
+    --surface-container-highest: #2C2C2C;
+    --surface: #0A0A0A;
+    --surface-bright: #141414;
+    --on-surface: #FFFFFF;
+    --on-surface-variant: #A1A1A1;
+    --primary-code: #FFFFFF;
+    --outline: #1C1B1B;
+    --outline-variant: #1C1B1B;
+    --secondary-container: #1C1B1B;
+    --on-secondary-container: #FFFFFF;
+    --error: #ffb4ab;
+    --on-error: #690005;
   }
 }
 
@@ -80,4 +112,12 @@
 /* Monaco Editor overrides */
 .monaco-editor {
   border-radius: 0.5rem;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
 }

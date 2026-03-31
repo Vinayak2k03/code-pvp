@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,12 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LeetCode Battleground",
+  title: "CodeClash",
   description:
     "Real-time competitive coding platform. Two players, one problem, fastest correct solution wins.",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
@@ -32,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#FAF9F9] dark:bg-[#0A0A0A] text-[#0A0A0A] dark:text-white`}
       >
         <ThemeProvider
           attribute="class"
@@ -41,7 +39,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {children}
+              <div className="fixed bottom-6 right-6 z-[100]">
+                <ThemeToggle />
+              </div>
+            </AuthProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>
